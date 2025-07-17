@@ -83,7 +83,7 @@ Thanks for using *TREND-X* — your session has been successfully created!
 
 *✅ Stay Updated:*  
 Join our official WhatsApp Channel:  
-https://whatsapp.com/channel/0029VbA6MSYJUM2TVOzCSb2A
+https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O
 
 *💻 Source Code:*  
 Fork & explore the project on GitHub:  
@@ -99,7 +99,7 @@ contextInfo: {
 externalAdReply: {
 title: "TREND-x 𝕮𝖔𝖓𝖓𝖊𝖈𝖙𝖊𝖉",
 thumbnailUrl: "https://files.catbox.moe/bqs70b.jpg",
-sourceUrl: "https://whatsapp.com/channel/0029VbA6MSYJUM2TVOzCSb2A",
+sourceUrl: "https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O",
 mediaType: 1,
 renderLargerThumbnail: true
 }  
@@ -119,7 +119,7 @@ Thanks for using *TREND-X* — your session has been successfully created!
 
 *✅ Stay Updated:*  
 Join our official WhatsApp Channel:  
-https://whatsapp.com/channel/0029VbA6MSYJUM2TVOzCSb2A
+https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O
 
 *💻 Source Code:*  
 Fork & explore the project on GitHub:  
@@ -133,7 +133,7 @@ contextInfo: {
 externalAdReply: {
 title: "TREND-x 𝕮𝖔𝖓𝖓𝖊𝖈𝖙𝖊𝖉 ✅  ",
 thumbnailUrl: "https://files.catbox.moe/bqs70b.jpg",
-sourceUrl: "https://whatsapp.com/channel/0029VbA6MSYJUM2TVOzCSb2A",
+sourceUrl: "https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O",
 mediaType: 2,
 renderLargerThumbnail: true,
 showAdAttribution: true
