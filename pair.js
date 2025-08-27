@@ -55,16 +55,15 @@ var randomItem = selectRandomItem(items);
                 
                 if (connection == "open") {
                     await delay(5000);
-                    let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`, { encoding: 'utf-8' });
+// Read and encode session credentials
+const credsPath = `${__dirname}/temp/${id}/creds.json`;
+const credsRaw = fs.readFileSync(credsPath, 'utf-8');
 
-// Encode the creds.json content into base64
-let base64Session = Buffer.from(data).toString('base64');
+// Convert creds.json to Base64 and add TREND-XMD~ prefix
+const sessionId = `TREND-XMD~${Buffer.from(credsRaw, 'utf-8').toString('base64')}`;
 
-// Prefix if you want, or just send the base64 directly
-let md = "TREND-XMD~" + base64Session;
-
-// Send session ID to your WhatsApp
-let code = await sock.sendMessage(sock.user.id, { text: md });
+// Send the base64 session ID to the user's WhatsApp
+await sock.sendMessage(sock.user.id, { text: sessionId });
                             let desc = `Hey there, TREND-X User!* 👋🏻
 
 Thanks for using *TREND-X* — your session has been successfully created!
