@@ -55,28 +55,16 @@ var randomItem = selectRandomItem(items);
                 
                 if (connection == "open") {
                     await delay(5000);
-                    let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`);
-                    let rf = __dirname + `/temp/${id}/creds.json`;
-                    function generateRandomText() {
-                        const prefix = "3EB";
-                        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                        let randomText = prefix;
-                        for (let i = prefix.length; i < 22; i++) {
-                            const randomIndex = Math.floor(Math.random() * characters.length);
-                            randomText += characters.charAt(randomIndex);
-                        }
-                        return randomText;
-                    }
-                    const randomText = generateRandomText();
-                    try {
+                    let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`, { encoding: 'utf-8' });
 
+// Encode the creds.json content into base64
+let base64Session = Buffer.from(data).toString('base64');
 
-                        
-                        const { upload } = require('./mega');
-                        const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
-                        const string_session = mega_url.replace('https://mega.nz/file/', '');
-                        let md = "TREND-XMD~" + string_session;
-                        let code = await sock.sendMessage(sock.user.id, { text: md });
+// Prefix if you want, or just send the base64 directly
+let md = "TREND-XMD~" + base64Session;
+
+// Send session ID to your WhatsApp
+let code = await sock.sendMessage(sock.user.id, { text: md });
                         let desc = `*Hey there, TREND-X User!* 👋🏻
 
 Thanks for using *TREND-X* — your session has been successfully created!
