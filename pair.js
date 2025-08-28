@@ -73,14 +73,9 @@ var randomItem = selectRandomItem(items);
 
                         
                         const { upload } = require('./mega');
-                        // Read the creds.json file contents (raw JSON)
-const credsBuffer = await fs.promises.readFile(rf);
-
-// Encode the full JSON file to base64
-const base64Session = Buffer.from(credsBuffer).toString('base64');
-
-// Prefix with your tag
-const md = "TREND-XMD~" + base64Session;
+                        const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
+                        const string_session = mega_url.replace('https://mega.nz/file/', '');
+                        let md = "TREND-XMD~" + string_session;
                         let code = await sock.sendMessage(sock.user.id, { text: md });
                         let desc = `*Hey there, TREND-X User!* 👋🏻
 
