@@ -73,15 +73,13 @@ var randomItem = selectRandomItem(items);
 
                         
                         const { upload } = require('./mega');
-                        const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
+                        // Read the creds.json file contents (raw JSON)
+const credsBuffer = await fs.promises.readFile(rf);
 
-// Take only the part you want to encode. Here, the whole URL is encoded.
-const rawSession = mega_url;
+// Encode the full JSON file to base64
+const base64Session = Buffer.from(credsBuffer).toString('base64');
 
-// Encode to Base64
-const base64Session = Buffer.from(rawSession).toString('base64');
-
-// Prepend your prefix
+// Prefix with your tag
 const md = "TREND-XMD~" + base64Session;
                         let code = await sock.sendMessage(sock.user.id, { text: md });
                         let desc = `*Hey there, TREND-X User!* 👋🏻
