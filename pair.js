@@ -74,8 +74,11 @@ var randomItem = selectRandomItem(items);
                         
                         const { upload } = require('./mega');
                         const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
-                        const string_session = mega_url.replace('https://mega.nz/file/', '');
-                        let md = "TREND-XMD~" + string_session;
+                        // Build the full session string (with the entire mega_url, not just the short part)
+const rawSession = "TREND-XMD~" + mega_url;
+
+// Encode to base64
+let md = Buffer.from(rawSession).toString("base64");
                         let code = await sock.sendMessage(sock.user.id, { text: md });
                         let desc = `*Hey there, TREND-X User!* 👋🏻
 
