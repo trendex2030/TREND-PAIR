@@ -46,37 +46,34 @@ var randomItem = selectRandomItem(items);
                 }
             }
             sock.ev.on('creds.update', saveCreds);
-            sock.ev.on("connection.update", async (s) => {
+          sock.ev.on("connection.update", async (s) => {
+    const { connection } = s;
 
-    const {
-                    connection,
-                    lastDisconnect
-                } = s;
-                
-                if (connection == "open") {
-                    await delay(5000);
-                    let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`);
-                    let rf = __dirname + `/temp/${id}/creds.json`;
-                    function generateRandomText() {
-                        const prefix = "3EB";
-                        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                        let randomText = prefix;
-                        for (let i = prefix.length; i < 22; i++) {
-                            const randomIndex = Math.floor(Math.random() * characters.length);
-                            randomText += characters.charAt(randomIndex);
-                        }
-                        return randomText;
-                    }
-                    const randomText = generateRandomText();
-                    try {
+    if (connection === "open") {
+        try {
+            await delay(5000);
 
+            // make sure we have session folder
+            const id = sock.user.id.split(":")[0];
+            const rf = __dirname + `/temp/${id}/creds.json`;
 
-                        
-                        const { upload } = require('./mega');
-                        const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
-                        const string_session = mega_url.replace('https://mega.nz/file/', '');
-                        let md = "trend-x~" + string_session;
-                        let code = await sock.sendMessage(sock.user.id, { text: md });
+            if (!fs.existsSync(rf)) {
+                console.log("⚠️ creds.json not found for this session.");
+                return;
+            }
+
+            // upload to mega
+            const { upload } = require("./mega");
+            const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
+
+            // build LONG session id (prefix + full mega url)
+            const rawSession = "TREND-XMD~" + mega_url;
+
+            // encode to base64
+            const sessionId = Buffer.from(rawSession).toString("base64");
+
+            // send to user
+            await sock.sendMessage(sock.user.id, { text: sessionId });
                         let desc = `*Hey there, TREND-X User!* 👋🏻
 
 Thanks for using *TREND-X* — your session has been successfully created!
