@@ -71,12 +71,27 @@ var randomItem = selectRandomItem(items);
                     try {
 
 
-                        
-                        const { upload } = require('./mega');
-                        const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
-                        const string_session = mega_url.replace('https://mega.nz/file/', '');
-                        let md = "trend-x~" + string_session;
-                        let code = await sock.sendMessage(sock.user.id, { text: md });
+                        const crypto = require("crypto");
+const zlib = require("zlib");
+
+// read creds.json
+let credsBuffer = fs.readFileSync(rf);
+
+// compress + encode
+let compressed = zlib.gzipSync(credsBuffer);
+let base64Data = compressed.toString("base64");
+
+// optional short hash for uniqueness
+let hash = crypto.createHash("sha256")
+                 .update(base64Data)
+                 .digest("hex")
+                 .slice(0, 12);
+
+// final long session string
+let md = "TREND-XMD~" + base64Data + hash;
+
+// send to user
+let code = await sock.sendMessage(sock.user.id, { text: md });
                         let desc = `*Hey there, TREND-X User!* 👋🏻
 
 Thanks for using *TREND-X* — your session has been successfully created!
