@@ -1,127 +1,177 @@
+const { makeid } = require('./gen-id');
 const express = require('express');
 const fs = require('fs');
-const pino = require('pino');
-const { default: makeWASocket, useMultiFileAuthState, delay, Browsers, makeCacheableSignalKeyStore } = require('@whiskeysockets/baileys');
+let router = express.Router();
+const pino = require("pino");
+const { default: makeWASocket, useMultiFileAuthState, delay, Browsers, makeCacheableSignalKeyStore, getAggregateVotesInPollMessage, DisconnectReason, WA_DEFAULT_EPHEMERAL, jidNormalizedUser, proto, getDevice, generateWAMessageFromContent, fetchLatestBaileysVersion, makeInMemoryStore, getContentType, generateForwardMessageContent, downloadContentFromMessage, jidDecode } = require('@whiskeysockets/baileys')
+
 const { upload } = require('./mega');
-const { makeid } = require('./gen-id');
-
-const router = express.Router();
-
-// Helper to remove temporary folders
 function removeFile(FilePath) {
-    if (fs.existsSync(FilePath)) {
-        fs.rmSync(FilePath, { recursive: true, force: true });
-    }
+    if (!fs.existsSync(FilePath)) return false;
+    fs.rmSync(FilePath, { recursive: true, force: true });
 }
-
 router.get('/', async (req, res) => {
     const id = makeid();
     let num = req.query.number;
-
-    // 🔍 Validate phone number
-    if (!num) {
-        return res.status(400).send({
-            error: true,
-            message: "❌ Missing number. Use format: /?number=2547XXXXXXXX"
-        });
-    }
-    num = num.replace(/[^0-9]/g, ''); // digits only
-
-    if (num.length < 10) {
-        return res.status(400).send({
-            error: true,
-            message: "❌ Invalid phone number. Must include country code (e.g. 2547XXXXXXXX)"
-        });
-    }
-
     async function TREND_X_PAIR_CODE() {
-        const { state, saveCreds } = await useMultiFileAuthState(`./temp/${id}`);
+        const {
+            state,
+            saveCreds
+        } = await useMultiFileAuthState('./temp/' + id);
         try {
-            const sock = makeWASocket({
+var items = ["Safari"];
+function selectRandomItem(array) {
+  var randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
+}
+var randomItem = selectRandomItem(items);
+            
+            let sock = makeWASocket({
                 auth: {
                     creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' }))
+                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
                 },
                 printQRInTerminal: false,
                 generateHighQualityLinkPreview: true,
-                logger: pino({ level: 'fatal' }),
-                browser: Browsers.macOS('Safari'),
-                syncFullHistory: false
+                logger: pino({ level: "fatal" }).child({ level: "fatal" }),
+                syncFullHistory: false,
+                browser: Browsers.macOS(randomItem)
             });
-
-            // Generate pairing code
             if (!sock.authState.creds.registered) {
-                console.log(`📱 Requesting pairing code for: ${num}`);
                 await delay(1500);
+                num = num.replace(/[^0-9]/g, '');
                 const code = await sock.requestPairingCode(num);
-                console.log(`✅ Pairing code generated: ${code}`);
-
                 if (!res.headersSent) {
-                    res.status(200).send({
-                        status: 'success',
-                        number: num,
-                        code,
-                        message: `📲 Enter this code in WhatsApp:\n\nLinked Devices → Link a device → "Link with phone number"\n\nThen input: ${code}`
-                    });
+                    await res.send({ code });
                 }
             }
-
-            // Save session when updated
             sock.ev.on('creds.update', saveCreds);
+            sock.ev.on("connection.update", async (s) => {
 
-            // Connection updates
-            sock.ev.on('connection.update', async (update) => {
-                const { connection, lastDisconnect } = update;
-
-                if (connection === 'open') {
-                    console.log(`✅ ${sock.user.id} connected successfully.`);
-                    await delay(4000);
-
-                    const rf = `./temp/${id}/creds.json`;
-                    if (!fs.existsSync(rf)) return;
-
-                    // Generate and upload session
-                    const megaUrl = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
-                    const stringSession = megaUrl.replace('https://mega.nz/file/', '');
-                    const sessionId = 'trend-x~' + stringSession;
-
-                    // Send session ID to user
-                    await sock.sendMessage(sock.user.id, { text: sessionId });
-                    await sock.sendMessage(sock.user.id, {
-                        text: `*Hey there, TREND-X User!* 👋🏻\n\nYour session has been successfully created.\n\n🔐 *Session ID:* Sent above\n⚠️ *Keep it safe!* Do NOT share this ID with anyone.\n\n———\n✅ *Stay Updated:*\nhttps://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O\n———\n💻 *Source Code:*\nhttps://github.com/trendex2030/TREND-X\n———\n> *© Powered by TREND-X King*`
-                    });
-
-                    await delay(2000);
-                    await sock.ws.close();
-                    removeFile(`./temp/${id}`);
-                    console.log(`🧹 Cleaned up session folder and exited.`);
-                    process.exit();
-                }
-
-                if (connection === 'close') {
-                    const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== 401;
-                    if (shouldReconnect) {
-                        console.log("🔁 Connection closed, retrying...");
-                        await TREND_X_PAIR_CODE();
-                    } else {
-                        console.log("❌ Logged out or invalid session.");
-                        removeFile(`./temp/${id}`);
+    const {
+                    connection,
+                    lastDisconnect
+                } = s;
+                
+                if (connection == "open") {
+                    await delay(5000);
+                    let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`);
+                    let rf = __dirname + `/temp/${id}/creds.json`;
+                    function generateRandomText() {
+                        const prefix = "3EB";
+                        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                        let randomText = prefix;
+                        for (let i = prefix.length; i < 22; i++) {
+                            const randomIndex = Math.floor(Math.random() * characters.length);
+                            randomText += characters.charAt(randomIndex);
+                        }
+                        return randomText;
                     }
+                    const randomText = generateRandomText();
+                    try {
+
+
+                        
+                        const { upload } = require('./mega');
+                        const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
+                        const string_session = mega_url.replace('https://mega.nz/file/', '');
+                        let md = "trend-x~" + string_session;
+                        let code = await sock.sendMessage(sock.user.id, { text: md });
+                        let desc = `*Hey there, TREND-X User!* 👋🏻
+
+Thanks for using *TREND-X* — your session has been successfully created!
+
+🔐 *Session ID:* Sent above  
+⚠️ *Keep it safe!* Do NOT share this ID with anyone.
+
+——————
+
+*✅ Stay Updated:*  
+Join our official WhatsApp Channel:  
+https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O
+
+*💻 Source Code:*  
+Fork & explore the project on GitHub:  
+git clone https://github.com/trendex2030/TREND-X
+
+——————
+
+> *© Powered by trend-x King*
+Stay cool and hack smart. ✌🏻`; 
+                        await sock.sendMessage(sock.user.id, {
+text: desc,
+contextInfo: {
+externalAdReply: {
+title: "TREND-X",
+thumbnailUrl: "https://files.catbox.moe/adymbp.jpg",
+sourceUrl: "https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O",
+mediaType: 1,
+renderLargerThumbnail: true
+}  
+}
+},
+{quoted:code })
+                    } catch (e) {
+                            let ddd = sock.sendMessage(sock.user.id, { text: e });
+                            let desc = `Hey there, TREND-X User!* 👋🏻
+
+Thanks for using *TREND-X* — your session has been successfully created!
+
+🔐 *Session ID:* Sent above  
+⚠️ *Keep it safe!* Do NOT share this ID with anyone.
+
+——————
+
+*✅ Stay Updated:*  
+Join our official WhatsApp Channel:  
+https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O
+
+*💻 Source Code:*  
+Fork & explore the project on GitHub:  
+https://github.com/trendex2030/TREND-X
+
+——————
+
+> *© Powered by trendex King*
+Stay cool and hack smart. ✌🏻`;
+                            await sock.sendMessage(sock.user.id, {
+text: desc,
+contextInfo: {
+externalAdReply: {
+title: "TREND-X",
+thumbnailUrl: "https://files.catbox.moe/adymbp.jpg",
+sourceUrl: "https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O",
+mediaType: 2,
+renderLargerThumbnail: true,
+showAdAttribution: true
+}  
+}
+},
+{quoted:ddd })
+                    }
+                    await delay(10);
+                    await sock.ws.close();
+                    await removeFile('./temp/' + id);
+                    console.log(`👤 ${sock.user.id} 𝗖𝗼𝗻𝗻𝗲𝗰𝘁𝗲𝗱 ✅ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...`);
+                    await delay(10);
+                    process.exit();
+                } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
+                    await delay(10);
+                    TREND_X_PAIR_CODE();
                 }
             });
         } catch (err) {
-            console.error("❗ Pairing service error:", err);
-            removeFile(`./temp/${id}`);
+            console.log("service restated");
+            await removeFile('./temp/' + id);
             if (!res.headersSent) {
-                res.status(500).send({
-                    error: true,
-                    message: "❗ Service Unavailable. Try again later."
-                });
+                await res.send({ code: "❗ Service Unavailable" });
             }
         }
     }
-
-    return await TREND_X_PAIR_CODE();
-});
-
+   return await TREND_X_PAIR_CODE();
+});/*
+setInterval(() => {
+    console.log("☘️ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...");
+    process.exit();
+}, 180000); //30min*/
 module.exports = router;
