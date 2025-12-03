@@ -3,175 +3,143 @@ const express = require('express');
 const fs = require('fs');
 let router = express.Router();
 const pino = require("pino");
-const { default: makeWASocket, useMultiFileAuthState, delay, Browsers, makeCacheableSignalKeyStore, getAggregateVotesInPollMessage, DisconnectReason, WA_DEFAULT_EPHEMERAL, jidNormalizedUser, proto, getDevice, generateWAMessageFromContent, fetchLatestBaileysVersion, makeInMemoryStore, getContentType, generateForwardMessageContent, downloadContentFromMessage, jidDecode } = require('@whiskeysockets/baileys')
+const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    delay,
+    Browsers,
+    makeCacheableSignalKeyStore,
+    jidNormalizedUser
+} = require('@whiskeysockets/baileys');
 
 const { upload } = require('./mega');
+
+// Remove folder
 function removeFile(FilePath) {
-    if (!fs.existsSync(FilePath)) return false;
+    if (!fs.existsSync(FilePath)) return;
     fs.rmSync(FilePath, { recursive: true, force: true });
 }
+
 router.get('/', async (req, res) => {
     const id = makeid();
     let num = req.query.number;
-    async function TREND_X_PAIR_CODE() {
-        const {
-            state,
-            saveCreds
-        } = await useMultiFileAuthState('./temp/' + id);
+
+    async function TREND_X_PAIR() {
+        const { state, saveCreds } = await useMultiFileAuthState('./temp/' + id);
+
         try {
-var items = ["Safari"];
-function selectRandomItem(array) {
-  var randomIndex = Math.floor(Math.random() * array.length);
-  return array[randomIndex];
-}
-var randomItem = selectRandomItem(items);
-            
-            let sock = makeWASocket({
+            const sock = makeWASocket({
                 auth: {
                     creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
+                    keys: makeCacheableSignalKeyStore(
+                        state.keys,
+                        pino({ level: "fatal" }).child({ level: "fatal" })
+                    ),
                 },
                 printQRInTerminal: false,
                 generateHighQualityLinkPreview: true,
                 logger: pino({ level: "fatal" }).child({ level: "fatal" }),
                 syncFullHistory: false,
-                browser: Browsers.macOS(randomItem)
+                browser: Browsers.macOS("Safari")
             });
+
+            // Request pair code
             if (!sock.authState.creds.registered) {
                 await delay(1500);
                 num = num.replace(/[^0-9]/g, '');
                 const code = await sock.requestPairingCode(num);
+
                 if (!res.headersSent) {
-                    await res.send({ code });
+                    return res.send({ code });
                 }
             }
+
             sock.ev.on('creds.update', saveCreds);
-            sock.ev.on("connection.update", async (s) => {
 
-    const {
-                    connection,
-                    lastDisconnect
-                } = s;
-                
-                if (connection == "open") {
-                    await delay(5000);
-                    let data = fs.readFileSync(__dirname + `/temp/${id}/creds.json`);
-                    let rf = __dirname + `/temp/${id}/creds.json`;
-                    function generateRandomText() {
-                        const prefix = "3EB";
-                        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                        let randomText = prefix;
-                        for (let i = prefix.length; i < 22; i++) {
-                            const randomIndex = Math.floor(Math.random() * characters.length);
-                            randomText += characters.charAt(randomIndex);
-                        }
-                        return randomText;
-                    }
-                    const randomText = generateRandomText();
+            sock.ev.on("connection.update", async (update) => {
+                const { connection, lastDisconnect } = update;
+
+                if (connection === "open") {
+                    console.log("CONNECTED:", sock.user.id);
+
+                    await delay(8000); // Allow WhatsApp to finish login
+
+                    const userJid = jidNormalizedUser(sock.user.id);
+                    const credsPath = `${__dirname}/temp/${id}/creds.json`;
+
                     try {
+                        // Upload the creds.json to MEGA
+                        const megaUrl = await upload(
+                            fs.createReadStream(credsPath),
+                            `${userJid}.json`
+                        );
 
+                        const session = megaUrl.replace("https://mega.nz/file/", "");
+                        const messageText = "trend-x~" + session;
 
-                        
-                        const { upload } = require('./mega');
-                        const mega_url = await upload(fs.createReadStream(rf), `${sock.user.id}.json`);
-                        const string_session = mega_url.replace('https://mega.nz/file/', '');
-                        let md = "trend-x~" + string_session;
-                        let code = await sock.sendMessage(sock.user.id, { text: md });
-                        let desc = `*Hey there, TREND-X User!* 👋🏻
+                        // Send session ID
+                        const sent = await sock.sendMessage(userJid, { text: messageText });
+                        await delay(1500);
 
-Thanks for using *TREND-X* — your session has been successfully created!
+                        // Send description
+                        const desc = `*Hey there, TREND-X User!* 👋🏻
 
-🔐 *Session ID:* Sent above  
-⚠️ *Keep it safe!* Do NOT share this ID with anyone.
+Your session has been successfully created.
 
-——————
+🔐 *Session ID:* Delivered above  
+⚠️ *Do NOT share it with anyone!*`;
 
-*✅ Stay Updated:*  
-Join our official WhatsApp Channel:  
-https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O
+                        await sock.sendMessage(
+                            userJid,
+                            {
+                                text: desc,
+                                contextInfo: {
+                                    externalAdReply: {
+                                        title: "TREND-X",
+                                        thumbnailUrl: "https://files.catbox.moe/adymbp.jpg",
+                                        sourceUrl: "https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O",
+                                        mediaType: 1,
+                                        renderLargerThumbnail: true
+                                    }
+                                }
+                            },
+                            { quoted: sent }
+                        );
 
-*💻 Source Code:*  
-Fork & explore the project on GitHub:  
-git clone https://github.com/trendex2030/TREND-X
+                        // Ensure messages deliver before exit
+                        await delay(5000);
 
-——————
+                        await sock.ws.close();
+                        removeFile('./temp/' + id);
+                        process.exit();
 
-> *© Powered by trend-x King*
-Stay cool and hack smart. ✌🏻`; 
-                        await sock.sendMessage(sock.user.id, {
-text: desc,
-contextInfo: {
-externalAdReply: {
-title: "TREND-X",
-thumbnailUrl: "https://files.catbox.moe/adymbp.jpg",
-sourceUrl: "https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O",
-mediaType: 1,
-renderLargerThumbnail: true
-}  
-}
-},
-{quoted:code })
-                    } catch (e) {
-                            let ddd = sock.sendMessage(sock.user.id, { text: e });
-                            let desc = `Hey there, TREND-X User!* 👋🏻
+                    } catch (err) {
+                        console.log("SEND ERROR:", err);
 
-Thanks for using *TREND-X* — your session has been successfully created!
-
-🔐 *Session ID:* Sent above  
-⚠️ *Keep it safe!* Do NOT share this ID with anyone.
-
-——————
-
-*✅ Stay Updated:*  
-Join our official WhatsApp Channel:  
-https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O
-
-*💻 Source Code:*  
-Fork & explore the project on GitHub:  
-https://github.com/trendex2030/TREND-X
-
-——————
-
-> *© Powered by trendex King*
-Stay cool and hack smart. ✌🏻`;
-                            await sock.sendMessage(sock.user.id, {
-text: desc,
-contextInfo: {
-externalAdReply: {
-title: "TREND-X",
-thumbnailUrl: "https://files.catbox.moe/adymbp.jpg",
-sourceUrl: "https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O",
-mediaType: 2,
-renderLargerThumbnail: true,
-showAdAttribution: true
-}  
-}
-},
-{quoted:ddd })
+                        const userJid = jidNormalizedUser(sock.user.id);
+                        await sock.sendMessage(userJid, {
+                            text: "❗ ERROR SENDING SESSION:\n" + String(err)
+                        });
                     }
-                    await delay(10);
-                    await sock.ws.close();
-                    await removeFile('./temp/' + id);
-                    console.log(`👤 ${sock.user.id} 𝗖𝗼𝗻𝗻𝗲𝗰𝘁𝗲𝗱 ✅ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...`);
-                    await delay(10);
-                    process.exit();
-                } else if (connection === "close" && lastDisconnect && lastDisconnect.error && lastDisconnect.error.output.statusCode != 401) {
-                    await delay(10);
-                    TREND_X_PAIR_CODE();
+
+                } else if (
+                    connection === "close" &&
+                    lastDisconnect &&
+                    lastDisconnect.error &&
+                    lastDisconnect.error.output.statusCode !== 401
+                ) {
+                    TREND_X_PAIR(); // retry
                 }
             });
+
         } catch (err) {
-            console.log("service restated");
-            await removeFile('./temp/' + id);
-            if (!res.headersSent) {
-                await res.send({ code: "❗ Service Unavailable" });
-            }
+            console.log("Service Error:", err);
+            removeFile('./temp/' + id);
+            if (!res.headersSent) res.send({ code: "❗ Service Unavailable" });
         }
     }
-   return await TREND_X_PAIR_CODE();
-});/*
-setInterval(() => {
-    console.log("☘️ 𝗥𝗲𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝗽𝗿𝗼𝗰𝗲𝘀𝘀...");
-    process.exit();
-}, 180000); //30min*/
+
+    TREND_X_PAIR();
+});
+
 module.exports = router;
