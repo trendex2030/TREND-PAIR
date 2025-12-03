@@ -4,9 +4,9 @@
   "description": "A multi functional whatsapp bot Web paircode.",
   "main": "./index.js",
   "scripts": {
-    "start": "pm2 start bmb.js --deep-monitoring --attach --name SESSIONSCANNERt",
-    "stop": "pm2 stop SESSIONSCANNERt",
-    "restart": "pm2 restart SESSIONSCANNERt"
+    "start": "pm2 start index.js --deep-monitoring --attach --name TREND-PAIR",
+    "stop": "pm2 stop TREND-PAIR",
+    "restart": "pm2 restart TREND-PAIR"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "npm:dgxeon-soket@^3.0.0",
