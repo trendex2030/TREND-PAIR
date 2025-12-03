@@ -9,7 +9,7 @@
      "restart": "pm2 restart TREND-X"
     },
   "dependencies": {
-   "@whiskeysockets/baileys": "npm i @itsukichan/baileys",          
+   "@whiskeysockets/baileys": "github:XdKing2/Malvin-Baileys",          
     "@adiwajshing/keyed-db": "^0.2.4",
     "qrcode": "^1.5.3",
     "awesome-phonenumber": "^2.64.0",
