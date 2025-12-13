@@ -9,7 +9,7 @@
     "restart": "pm2 restart TREND-PAIR"
   },
   "dependencies": {
-    "@whiskeysockets/baileys":"github:Richiethgoat/XD-Baileys",
+    "@whiskeysockets/baileys":"npm:baileys-dtz",
     "@adiwajshing/keyed-db": "^0.2.4",
     "qrcode": "^1.5.3",
     "awesome-phonenumber": "^2.64.0",
