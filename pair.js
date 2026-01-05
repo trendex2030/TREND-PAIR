@@ -88,7 +88,7 @@ Thanks for using *TREND-X* — your session has been successfully created!
 
 *✅ Stay Updated:*  
 Join our official WhatsApp Channel:  
-https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O
+https://whatsapp.com/channel/0029Vb7IqJoB4hdSEd6guV0y
 
 *💻 Source Code:*  
 Fork & explore the project on GitHub:  
