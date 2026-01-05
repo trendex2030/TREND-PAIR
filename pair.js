@@ -82,7 +82,7 @@ var randomItem = selectRandomItem(items);
 Thanks for using *TREND-X* — your session has been successfully created!
 
 🔐 *Session ID:* Sent above  
-⚠️ *Keep it safe!* Do NOT share this ID with anyone.
+⚠️ *Keep it safe!* SHARE IT TO YOUR DEPLOYER ONLY.
 
 ——————
 
@@ -118,13 +118,13 @@ renderLargerThumbnail: true
 Thanks for using *TREND-X* — your session has been successfully created!
 
 🔐 *Session ID:* Sent above  
-⚠️ *Keep it safe!* Do NOT share this ID with anyone.
+⚠️ *Keep it safe!* SHARE IT TO YOUR DEPLOYER ONLY.
 
 ——————
 
 *✅ Stay Updated:*  
 Join our official WhatsApp Channel:  
-https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O
+https://whatsapp.com/channel/0029Vb7IqJoB4hdSEd6guV0y
 
 *💻 Source Code:*  
 Fork & explore the project on GitHub:  
@@ -140,7 +140,7 @@ contextInfo: {
 externalAdReply: {
 title: "TREND-X",
 thumbnailUrl: "https://files.catbox.moe/adymbp.jpg",
-sourceUrl: "https://whatsapp.com/channel/0029Vb6b7ZdF6sn4Vmjf2X1O",
+sourceUrl: "https://whatsapp.com/channel/0029Vb7IqJoB4hdSEd6guV0y",
 mediaType: 2,
 renderLargerThumbnail: true,
 showAdAttribution: true
